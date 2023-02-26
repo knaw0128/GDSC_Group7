@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Habit Tracker',
+          'Homepage',
           style: TextStyle(
             color: Colors.brown[900],
           ),
