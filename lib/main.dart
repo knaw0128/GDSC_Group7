@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,14 +13,134 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Homepage',
       theme: ThemeData(
-        primarySwatch: Colors.grey,
+        primarySwatch: Colors.orange,
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: LoginPage(),
     );
   }
 }
 
+//登入頁面區
+class LoginPage extends StatefulWidget {
+  LoginPage({Key? key}) : super(key: key);
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  List<Map<String, String>> _registeredUsers = [
+    {"username": "user1", "password": "password1"},
+    {"username": "user2", "password": "password2"},
+    {"username": "user3", "password": "password3"},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Login",
+          style: TextStyle(
+            color: Colors.brown[900],
+          ),
+        ),
+        backgroundColor: Colors.orange[100],
+        shadowColor: Colors.orange[100],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: "Username",
+                ),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Username cannot be empty";
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                ),
+                obscureText: true,
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Password cannot be empty";
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.orange[100],
+                ),
+                child: Text(
+                  "Login",
+                  style: TextStyle(
+                    color: Colors.brown[900],
+                  ),
+                ),
+                onPressed: () {
+                  if (_formKey.currentState?.validate() == true) {
+                    bool validUser = false;
+                    for (var user in _registeredUsers) {
+                      if (user['username'] == _usernameController.text &&
+                          user['password'] == _passwordController.text) {
+                        validUser = true;
+                        break;
+                      }
+                    }
+                    if (validUser) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Invalid login"),
+                            content: Text("Username or password is incorrect."),
+                            actions: [
+                              TextButton(
+                                child: Text("OK"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+//登入頁面區
+
+//主畫面區
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -84,6 +205,7 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           TableCalendar(
+            headerStyle: HeaderStyle(formatButtonVisible: false),
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Colors.orange[300],
@@ -184,9 +306,28 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+//主畫面區
 
-class AddHabitPage extends StatelessWidget {
+//添加習慣區
+class AddHabitPage extends StatefulWidget {
+  const AddHabitPage({Key? key}) : super(key: key);
+
+  @override
+  _AddHabitPage createState() => _AddHabitPage();
+}
+
+// class AddHabitPage extends StatelessWidget {
+class _AddHabitPage extends State<AddHabitPage> {
   final TextEditingController _textEditingController = TextEditingController();
+
+  final List<String> frequency = [
+    '1 times per week',
+    '3 times per week',
+  ];
+
+  String? selectedFrequency;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -201,70 +342,110 @@ class AddHabitPage extends StatelessWidget {
         backgroundColor: Colors.white, // Colors.orange[50]
         shadowColor: Colors.white,
       ),
-      body: Container(
-        color: Colors.white,
-        padding: EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            TextField(
-              style: TextStyle(color: Colors.grey),
-              controller: _textEditingController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Enter a new habit',
-                labelStyle: TextStyle(color: Colors.grey),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.grey),
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 80),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _textEditingController,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  // contentPadding: const EdgeInsets.symmetric(
+                  //   horizontal: 20,
+                  //   vertical: 20,
+                  // ),
+                  contentPadding: EdgeInsets.zero,
+                  hintText: 'Enter a Habit Name',
+                  hintStyle: const TextStyle(fontSize: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a habit name.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+              DropdownButtonFormField2(
+                decoration: InputDecoration(
+                  //Add isDense true and zero Padding.
+                  //Add Horizontal padding using buttonPadding and Vertical padding by increasing buttonHeight instead of add Padding here so that The whole TextField Button become clickable, and also the dropdown menu open under The whole TextField Button.
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  //Add more decoration as you want here
+                  //Add label If you want but add hint outside the decoration to be aligned in the button perfectly.
+                ),
+                isExpanded: true,
+                hint: const Text(
+                  'Frequency',
+                  style: TextStyle(fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+                items: frequency
+                    .map((item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Text(
+                            item,
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ))
+                    .toList(),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select frequency.';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  //Do something when changing the item if you want.
+                },
+                onSaved: (value) {
+                  selectedFrequency = value.toString();
+                },
+                buttonStyleData: const ButtonStyleData(
+                  height: 60,
+                  padding: EdgeInsets.only(left: 20, right: 10),
+                ),
+                iconStyleData: const IconStyleData(
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.black45,
+                  ),
+                  iconSize: 30,
+                ),
+                dropdownStyleData: DropdownStyleData(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                 ),
               ),
-            ),
-
-            SizedBox(
-              height: 16,
-            ),
-
-            // Image.asset('assets/images/background.jpg', fit: BoxFit.scaleDown)
-            // Expanded(
-            //   child: Image.asset(
-            //     'assets/images/background.jpg',
-            //     fit: BoxFit.cover,
-            //   ),
-            // ),
-            FractionallySizedBox(
-              widthFactor: 1.0,
-              child: Image.asset(
-                'assets/images/background.jpg',
-                fit: BoxFit.cover,
+              const SizedBox(height: 30),
+              TextButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    final String habit = _textEditingController.text.trim();
+                    Navigator.pop(context, habit);
+                  }
+                },
+                child: const Text('Create'),
               ),
-            ),
-
-            // CupertinoButton(
-            //   onPressed: () {
-            //     final String habit = _textEditingController.text.trim();
-            //     Navigator.pop(context, habit);
-            //   },
-            //   child: Text(
-            //     'Save',
-            //     style: TextStyle(
-            //       color: Colors.brown[900],
-            //     ),
-            //   ),
-            //   color: Colors.orange[100],
-            // ),
-          ],
+            ],
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.done, color: Colors.brown[900]),
-        foregroundColor: Colors.orange[300],
-        backgroundColor: Colors.orange[400],
-        onPressed: () {
-          final String habit = _textEditingController.text.trim();
-          Navigator.pop(context, habit);
-        },
       ),
     );
   }
 }
+//添加習慣區
