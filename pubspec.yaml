@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   table_calendar: ^3.0.9
+  dropdown_button2: ^2.0.0
 
 dev_dependencies:
   flutter_test:
